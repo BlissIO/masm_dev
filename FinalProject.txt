@@ -1,0 +1,202 @@
+.386
+.model flat,stdcall
+.stack 4096
+ExitProcess proto,dwExitCode:dword
+Include Irvine32.inc
+Include Macros.inc
+
+.data
+    top BYTE   "########################################################################################################", 0
+    sides BYTE "#                                                                                                      #", 0
+    ground BYTE   "########################################################################################################", 0
+    controls BYTE "Press X to exit the game. Use WASD to move the player!",0
+    playerX BYTE 55
+    playerY BYTE 20
+    sideY BYTE 1
+    inputChar BYTE ?
+COMMENT#
+    moveChars BYTE 'wdsa'
+    prevInputChar BYTE ?
+    #
+
+.code
+main PROC
+    ;Draw top
+    mov edx, OFFSET top
+    call WriteString
+    
+    ;Draw Sides
+    mov dl, 0
+    mov dh, 1
+    call Gotoxy
+    mov edx, OFFSET sides
+    call WriteString
+    mov dl, 0
+    mov dh, 2
+    call Gotoxy
+    mov edx, OFFSET sides
+    call WriteString
+    mov dl, 0
+    mov dh, 3
+    call Gotoxy
+    mov edx, OFFSET sides
+    call WriteString
+    mov dl, 0
+    mov dh, 4
+    call Gotoxy
+    mov edx, OFFSET sides
+    call WriteString
+    mov dl, 0
+    mov dh, 5
+    call Gotoxy
+    mov edx, OFFSET sides
+    call WriteString
+    ;Draw ground at 0:28
+    mov dl,0
+    mov dh, 28
+    call Gotoxy
+    mov edx, OFFSET ground
+    call WriteString
+    ;Draw controlls
+    mov dl,0
+    mov dh, 29
+    call Gotoxy
+    mov edx, OFFSET controls
+    call WriteString
+
+    ;Draw player  at playerx and player Y
+    mov dl, playerX
+    mov dh, playerY
+    call Gotoxy
+    call DrawPlayer
+
+    
+
+    ;gameloop
+    gameLoop:
+  
+        ;Gravity (Help me god)
+        gravity:
+        cmp playerY, 27
+        jge fall
+
+        ;Make player fall
+        call UpdatePlayer
+        inc playerY
+        call DrawPlayer
+        mov eax, 80
+        call Delay
+        jmp gravity
+        fall:
+
+
+        ;Getting uer input
+        call ReadChar
+        mov inputChar, al; Storing user key input into al
+
+        COMMENT #
+            je jmp if equal
+            jne jmp if not equal
+            jg jmp if greater
+            jge jmp greatrer of equ
+            jl jmp if lesser
+        #
+
+
+        cmp inputChar, "x"
+        je exitGame
+        
+        cmp inputChar, "w"
+        je moveUp
+
+        cmp inputChar, "s"
+        je moveDown
+
+        cmp inputChar, "d"
+        je moveRight
+
+        cmp inputChar, "a"
+        je moveLeft
+
+
+        
+       
+
+        moveUp:
+		
+        ;Allow the player to jump
+        mov ecx, 4
+        jumpLoop:
+            call UpdatePlayer
+            dec PlayerY
+            call DrawPlayer
+            mov eax, 80
+            call Delay
+        loop jumpLoop
+		jmp gameLoop
+
+        moveDown:
+		call UpdatePlayer
+		inc PlayerY
+		call DrawPlayer
+		jmp gameLoop
+
+		moveLeft:
+		call UpdatePlayer
+		dec PlayerX
+		call DrawPlayer
+		jmp gameLoop
+
+		moveRight:
+		call UpdatePlayer
+		inc PlayerX
+		call DrawPlayer
+		jmp gameLoop
+
+        
+
+
+    exitGame:
+    exit
+main ENDP
+
+DrawPlayer PROC
+    mov dl,PlayerX
+	mov dh,PlayerY
+	call Gotoxy
+	mov al,"X"
+	call WriteChar
+	ret
+DrawPlayer ENDP
+
+UpdatePlayer PROC
+	mov dl,PlayerX
+	mov dh,PlayerY
+	call Gotoxy
+	mov al," "
+	call WriteChar
+	ret
+UpdatePlayer ENDP
+
+COMMENT #
+wdPressed MACRO
+            IsDefined(inputChar) && (inputChar EQ 'w')
+            IsDefined(prevInputChar) && (prevInputChar EQ 'd')
+        ENDM
+
+        swPressed MACRO
+            IsDefined(inputChar) && (inputChar EQ 's')
+            IsDefined(prevInputChar) && (prevInputChar EQ 'w')
+        ENDM
+
+        adPressed MACRO
+            IsDefined(inputChar) && (inputChar EQ 'a')
+            IsDefined(prevInputChar) && (prevInputChar EQ 'd')
+        ENDM
+
+        asPressed MACRO
+            IsDefined(inputChar) && (inputChar EQ 'a')
+            IsDefined(prevInputChar) && (prevInputChar EQ 's')
+        ENDM#
+
+END main

@@ -1,0 +1,25 @@
+; AddTwo.asm - adds two 32-bit integers.
+; Chapter 3 example
+.386
+.model flat,stdcall
+.stack 4096
+ExitProcess proto,dwExitCode:dword
+
+.data
+
+    monday BYTE "Monday",0
+    tuesday BYTE "Tuesday",0
+    wednesday BYTE "Wednesday",0
+    thursday BYTE "Thursday",0
+    friday BYTE "Friday",0
+    saturday BYTE "Saturday",0
+    sunday BYTE "Sunday",0
+    dayArray DWORD   monday,  tuesday,  wednesday,  thursday,  friday,  saturday, sunday
+    numDays = ($ -  dayArray) / 4
+
+.code
+main proc
+    mov eax, numDays
+    invoke ExitProcess,0
+main endp
+end main
